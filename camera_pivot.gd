@@ -37,7 +37,7 @@ func _input(event):
 
 		distance = clamp(distance, min_distance, max_distance)
 
-func _process(delta):
+func _process(_delta):
 	if target:
 		global_transform.origin = target.global_transform.origin
 

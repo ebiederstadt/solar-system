@@ -3,7 +3,7 @@ extends MeshInstance3D
 @export var sun: DirectionalLight3D
 @onready var material := get_active_material(0) as ShaderMaterial
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if sun == null or material == null:
 		return
 

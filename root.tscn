@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://ddxa2f0c72aan"]
+[gd_scene load_steps=25 format=3 uid="uid://ddxa2f0c72aan"]
 
 [ext_resource type="Shader" uid="uid://cmfseghp0woi8" path="res://shaders/planet.gdshader" id="1_l8v81"]
 [ext_resource type="Texture2D" uid="uid://cn2qkdjkbnf06" path="res://assets/textures/8k_earth_nightmap.jpg" id="2_tw3kd"]
@@ -10,6 +10,8 @@
 [ext_resource type="Script" uid="uid://th6bbo1w7hcp" path="res://camera_pivot.gd" id="5_bf3um"]
 [ext_resource type="Script" uid="uid://t1km6vvhw8ey" path="res://sun_lamp.gd" id="6_l8v81"]
 [ext_resource type="Texture2D" uid="uid://db4n8okggcu8o" path="res://assets/textures/8k_stars_milky_way.jpg" id="7_vyht1"]
+[ext_resource type="Shader" uid="uid://bn7iqo0n8mf06" path="res://shaders/atmosphere.gdshader" id="11_gd4vy"]
+[ext_resource type="Script" uid="uid://dcov1xtrfrpl6" path="res://atmosphere_controller.gd" id="12_qw60f"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_l8v81"]
 render_priority = 0
@@ -52,6 +54,20 @@ background_mode = 2
 sky = SubResource("Sky_huihk")
 tonemap_exposure = 1.35
 glow_enabled = true
+glow_bloom = 0.18
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gd4vy"]
+render_priority = 0
+shader = ExtResource("11_gd4vy")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tw3kd"]
+shading_mode = 0
+albedo_color = Color(0.9015971, 0, 0.14831829, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_tw3kd"]
+material = SubResource("StandardMaterial3D_tw3kd")
+flip_faces = true
+size = Vector2(2, 2)
 
 [node name="Planet Scene" type="Node3D"]
 
@@ -85,3 +101,12 @@ target = NodePath("../../Earth Planet")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_l8v81")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." node_paths=PackedStringArray("camera", "quad_mesh_instance")]
+material_override = SubResource("ShaderMaterial_gd4vy")
+extra_cull_margin = 16384.0
+mesh = SubResource("QuadMesh_tw3kd")
+skeleton = NodePath("../Camera Pivot/Camera3D")
+script = ExtResource("12_qw60f")
+camera = NodePath("../Camera Pivot/Camera3D")
+quad_mesh_instance = NodePath(".")
