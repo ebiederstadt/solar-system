@@ -3,7 +3,7 @@ extends Node
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
-func _input(event: InputEvent) -> void:
+func _input(_event: InputEvent) -> void:
 	if OS.is_debug_build() and Input.is_action_just_pressed("screenshot"):
 		print("Taking screenshot!")
 		var img = get_viewport().get_texture().get_image()
