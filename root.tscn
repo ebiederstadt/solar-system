@@ -59,8 +59,14 @@ glow_bloom = 0.18
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_gd4vy"]
 render_priority = 0
 shader = ExtResource("11_gd4vy")
-shader_parameter/sphere_center_world = Vector3(0, 0, 0)
-shader_parameter/sphere_radius = 10.0
+shader_parameter/planet_center_world = Vector3(0, 0, 0)
+shader_parameter/sun_pos_world = Vector3(0, 0, 0)
+shader_parameter/atmosphere_radius = 1.2
+shader_parameter/planet_radius = 10.0
+shader_parameter/num_in_scattering_points = 50
+shader_parameter/num_optical_depth_points = 20
+shader_parameter/atmosphere_blend_value = 0.5
+shader_parameter/scale_height = 0.25
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tw3kd"]
 shading_mode = 0
@@ -104,7 +110,7 @@ target = NodePath("../../Earth Planet")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_l8v81")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." node_paths=PackedStringArray("camera", "quad_mesh_instance", "sphere_object")]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." node_paths=PackedStringArray("camera", "quad_mesh_instance", "planet_instance")]
 material_override = SubResource("ShaderMaterial_gd4vy")
 extra_cull_margin = 16384.0
 mesh = SubResource("QuadMesh_tw3kd")
@@ -112,4 +118,7 @@ skeleton = NodePath("../Camera Pivot/Camera3D")
 script = ExtResource("12_qw60f")
 camera = NodePath("../Camera Pivot/Camera3D")
 quad_mesh_instance = NodePath(".")
-sphere_object = NodePath("../Earth Planet")
+planet_instance = NodePath("../Earth Planet")
+atmosphere_radius = 1.08
+num_in_scattering_points = 1940
+atmosphere_blend_value = 0.15

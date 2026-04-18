@@ -17,7 +17,7 @@ func _ready() -> void:
 
 	if target:
 		global_transform.origin = target.global_transform.origin
-	
+
 	var dir = -transform.basis.z.normalized()
 	yaw = atan2(dir.x, dir.z)
 	pitch = asin(dir.y)
@@ -28,7 +28,7 @@ func _input(event):
 		pitch -= event.relative.y * 0.005
 
 		pitch = clamp(pitch, -1.5, 1.5)
-		
+
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 			distance *= (1.0 - zoom_speed)
