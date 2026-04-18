@@ -2,16 +2,16 @@
 
 [ext_resource type="Shader" uid="uid://cmfseghp0woi8" path="res://shaders/planet.gdshader" id="1_l8v81"]
 [ext_resource type="Texture2D" uid="uid://cn2qkdjkbnf06" path="res://assets/textures/8k_earth_nightmap.jpg" id="2_tw3kd"]
-[ext_resource type="Script" uid="uid://c38tjd72hq043" path="res://planet_manager.gd" id="2_vyht1"]
+[ext_resource type="Script" uid="uid://c38tjd72hq043" path="res://scripts/planet_manager.gd" id="2_vyht1"]
 [ext_resource type="Texture2D" uid="uid://dum6llhgl2o2a" path="res://assets/textures/8k_earth_daymap.jpg" id="3_gd4vy"]
 [ext_resource type="Texture2D" uid="uid://cs1wj6db4ukai" path="res://assets/textures/2k_sun.jpg" id="4_28aoi"]
 [ext_resource type="Texture2D" uid="uid://c2gjujf1ty88q" path="res://assets/textures/2k_moon.jpg" id="4_jnlp7"]
 [ext_resource type="Texture2D" uid="uid://d1uqfqqnxwpnx" path="res://assets/textures/8k_earth_normal_map.png" id="4_qw60f"]
-[ext_resource type="Script" uid="uid://th6bbo1w7hcp" path="res://camera_pivot.gd" id="5_bf3um"]
-[ext_resource type="Script" uid="uid://t1km6vvhw8ey" path="res://sun_lamp.gd" id="6_l8v81"]
+[ext_resource type="Script" uid="uid://th6bbo1w7hcp" path="res://scripts/camera_pivot.gd" id="5_bf3um"]
+[ext_resource type="Script" uid="uid://t1km6vvhw8ey" path="res://scripts/sun_lamp.gd" id="6_l8v81"]
 [ext_resource type="Texture2D" uid="uid://db4n8okggcu8o" path="res://assets/textures/8k_stars_milky_way.jpg" id="7_vyht1"]
 [ext_resource type="Shader" uid="uid://bn7iqo0n8mf06" path="res://shaders/atmosphere.gdshader" id="11_gd4vy"]
-[ext_resource type="Script" uid="uid://dcov1xtrfrpl6" path="res://atmosphere_controller.gd" id="12_qw60f"]
+[ext_resource type="Script" uid="uid://dcov1xtrfrpl6" path="res://scripts/atmosphere_controller.gd" id="12_qw60f"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_l8v81"]
 render_priority = 0
@@ -110,7 +110,7 @@ target = NodePath("../../Earth Planet")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_l8v81")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." node_paths=PackedStringArray("camera", "quad_mesh_instance", "planet_instance")]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." node_paths=PackedStringArray("camera", "quad_mesh_instance", "planet_instance", "sun_instance")]
 material_override = SubResource("ShaderMaterial_gd4vy")
 extra_cull_margin = 16384.0
 mesh = SubResource("QuadMesh_tw3kd")
@@ -119,6 +119,7 @@ script = ExtResource("12_qw60f")
 camera = NodePath("../Camera Pivot/Camera3D")
 quad_mesh_instance = NodePath(".")
 planet_instance = NodePath("../Earth Planet")
-atmosphere_radius = 1.08
-num_in_scattering_points = 1940
-atmosphere_blend_value = 0.15
+sun_instance = NodePath("../Sun")
+atmosphere_radius = 1.6
+atmosphere_blend_value = 0.005
+scale_height = 0.12

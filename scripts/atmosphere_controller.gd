@@ -3,11 +3,12 @@ extends MeshInstance3D
 @export var camera: Camera3D
 @export var quad_mesh_instance: MeshInstance3D
 @export var planet_instance: MeshInstance3D
+@export var sun_instance: MeshInstance3D
 @export_range(1.0, 5.0, 0.05) var atmosphere_radius: float = 1.2
 
 @export var num_in_scattering_points = 50;
 @export var num_optical_depth_points = 20;
-@export_range(0.0, 1.0, 0.005) var atmosphere_blend_value = 0.5;
+@export_range(0.0, 0.5, 0.005) var atmosphere_blend_value = 0.5;
 @export_range(0.0, 1.0, 0.005) var scale_height = 0.25;
 
 var material: ShaderMaterial
@@ -22,12 +23,17 @@ func _ready() -> void:
 	sphere_mesh = planet_instance.mesh as SphereMesh
 	assert(sphere_mesh != null, "The planet object must be a sphere")
 
+	assert(sun_instance != null, "The sun must be assigned")
+
 func _process(_delta: float) -> void:
 	var sphere_center = planet_instance.global_position
 	var scale_vec = planet_instance.global_basis.get_scale()
 	var planet_radius = sphere_mesh.radius * scale_vec.x
 
+	var sun_center = sun_instance.global_position
+
 	material.set_shader_parameter("planet_center_world", sphere_center)
+	material.set_shader_parameter("sun_pos_world", sun_center)
 	material.set_shader_parameter("atmosphere_radius", atmosphere_radius)
 	material.set_shader_parameter("planet_radius", planet_radius)
 	material.set_shader_parameter("num_in_scattering_points", num_in_scattering_points);

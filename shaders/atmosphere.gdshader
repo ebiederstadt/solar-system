@@ -21,23 +21,20 @@ bool solve_quadratic(float a, float b, float c, out float x0, out float x1) {
 	float discr = b * b - 4.0 * a * c;
  	if (discr < 0.0) return false;
 
-	else if (discr == 0.0) x0 = x1 = -0.5 * b / a;
-	else {
-        float q = (b > 0.0) ?
-            -0.5 * (b + sqrt(discr)) :
-            -0.5 * (b - sqrt(discr));
-        x0 = q / a;
-        x1 = c / q;
-    }
+	float q = (b > 0.0) ?
+	    -0.5 * (b + sqrt(discr)) :
+	    -0.5 * (b - sqrt(discr));
+	x0 = q / a;
+	x1 = c / q;
 
-		if (x1 < x0) {
-			float tmp = x0;
-			x0 = x1;
-			x1 = tmp;
-		}
+	if (x1 < x0) {
+		float tmp = x0;
+		x0 = x1;
+		x1 = tmp;
+	}
 
-		// If the first intersection is small than 1 it is behind the camera
-		return x0 >= 0.0;
+	// If the first intersection is smaller than 0 it is behind the camera
+	return x0 >= 0.0;
 }
 
 bool ray_sphere_intersection(vec3 ray_origin, vec3 ray_direction, float radius, out float x0, out float x1) {
@@ -72,10 +69,16 @@ vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir) {
 	for (int i = 0; i < num_in_scattering_points; i++) {
 		// exp(-h - H_0)
 		float density = compute_local_density(in_scatter_point);
+
+		float atmosphere_intersect_sun;
+		float x1;
 		float optical_depth_sun = optical_depth(in_scatter_point, sun_pos_world);
+
 		float optical_depth_view = optical_depth(in_scatter_point, ray_entrance);
 
-		in_scattered_light += density;
+		float transmittance = exp(-(optical_depth_sun + optical_depth_view));
+
+		in_scattered_light += density * transmittance;
 		in_scatter_point += ray_dir * step_size;
 	}
 
@@ -114,7 +117,7 @@ void fragment() {
 	bool hit_planet = ray_sphere_intersection(
 		ray_origin,
 		ray_dir,
-		atmosphere_radius,
+		planet_radius,
 		dist_to_planet,
 		dist_through_planet
 	);
