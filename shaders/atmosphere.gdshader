@@ -4,6 +4,7 @@ render_mode unshaded, fog_disabled, blend_mix;
 #include "res://shaders/atmosphere_common.gdshaderinc"
 
 uniform sampler2D screen_texture : source_color, hint_screen_texture;
+uniform sampler2D depth_texture : hint_depth_texture;
 uniform vec3 planet_center_world = vec3(0.0, 0.0, 0.0);
 uniform vec3 sun_pos_world = vec3(0.0, 0.0, 0.0);
 uniform float sun_radius = 1.0;
@@ -119,6 +120,18 @@ vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir, vec3 o
 	return original_col * original_col_transmittance + in_scattered_light;
 }
 
+float scene_depth_distance(vec2 screen_uv, Ray view_ray, mat4 inv_projection_matrix, mat4 inv_view_matrix) {
+	float depth_raw = texture(depth_texture, screen_uv).x;
+	if (depth_raw >= 1.0) {
+		return 1e20;
+	}
+
+	vec3 ndc = vec3(screen_uv * 2.0 - 1.0, depth_raw);
+	vec4 world = inv_view_matrix * inv_projection_matrix * vec4(ndc, 1.0);
+	vec3 position_world = world.xyz / world.w;
+	return max(dot(position_world - view_ray.origin, view_ray.direction), 0.0);
+}
+
 void vertex() {
 	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
 }
@@ -137,9 +150,17 @@ void fragment() {
 
 	HitInfo atmosphere_hit = ray_sphere_intersect(view_ray, atmosphere_radius);
 	HitInfo planet_hit = ray_sphere_intersect(view_ray, planet_radius);
+	float scene_depth_t = scene_depth_distance(SCREEN_UV, view_ray, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX);
 
 	if (planet_hit.hit) {
 		atmosphere_hit.x1 = min(atmosphere_hit.x1, planet_hit.x0);
+	}
+
+	if (atmosphere_hit.hit) {
+		atmosphere_hit.x1 = min(atmosphere_hit.x1, scene_depth_t);
+		if (scene_depth_t <= atmosphere_hit.x0 || atmosphere_hit.x1 <= atmosphere_hit.x0) {
+			atmosphere_hit.hit = false;
+		}
 	}
 
 	vec3 original_color = screen.rgb;
