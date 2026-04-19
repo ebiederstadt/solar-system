@@ -137,6 +137,22 @@ float compute_optical_depth_baked(vec3 ray_start, vec3 target_dir) {
 	return texture(out_scattering_lut, uv).r;
 }
 
+float compute_optical_depth_to_camera_baked(vec3 ray_start, vec3 ray_dir, vec3 camera_pos) {
+	bool point_in_atmosphere = inside_atmosphere(camera_pos);
+
+	if (point_in_atmosphere && surface_distance(ray_start) > surface_distance(camera_pos)) {
+		ray_dir = -ray_dir;
+	}
+	float optical_depth_to_camera = compute_optical_depth_baked(ray_start, ray_dir);
+
+	if (point_in_atmosphere) {
+		float camera_to_boundary = compute_optical_depth_baked(camera_pos, ray_dir);
+		optical_depth_to_camera = max(optical_depth_to_camera - camera_to_boundary, 0.0);
+	}
+
+	return optical_depth_to_camera;
+}
+
 vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir, vec3 original_col, vec3 camera_pos) {
 	float ray_len = length(ray_exit - ray_entrance);
 	vec3 in_scatter_point = ray_entrance;
@@ -152,7 +168,7 @@ vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir, vec3 o
 		float optical_depth_sun = compute_optical_depth_baked(in_scatter_point, dir_to_sun);
 
 		float view_ray_length = step_size * float(i);
-		optical_depth_view = compute_optical_depth_baked(in_scatter_point, -ray_dir);
+		optical_depth_view = compute_optical_depth_to_camera_baked(in_scatter_point, -ray_dir, camera_pos);
 
 		vec3 transmittance = exp(-(optical_depth_sun + optical_depth_view) * scattering_coefficients);
 
