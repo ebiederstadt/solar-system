@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://ddxa2f0c72aan"]
+[gd_scene load_steps=26 format=3 uid="uid://ddxa2f0c72aan"]
 
 [ext_resource type="Shader" uid="uid://cmfseghp0woi8" path="res://shaders/planet.gdshader" id="1_l8v81"]
 [ext_resource type="Texture2D" uid="uid://cn2qkdjkbnf06" path="res://assets/textures/8k_earth_nightmap.jpg" id="2_tw3kd"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://db4n8okggcu8o" path="res://assets/textures/8k_stars_milky_way.jpg" id="7_vyht1"]
 [ext_resource type="Shader" uid="uid://bn7iqo0n8mf06" path="res://shaders/atmosphere.gdshader" id="11_gd4vy"]
 [ext_resource type="Script" uid="uid://dcov1xtrfrpl6" path="res://scripts/atmosphere_controller.gd" id="12_qw60f"]
+[ext_resource type="Script" uid="uid://cte4jalives85" path="res://addons/sk_fly_camera/src/fly_camera.gd" id="13_j1g60"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_l8v81"]
 render_priority = 0
@@ -127,3 +128,9 @@ sun_instance = NodePath("../Sun")
 atmosphere_radius = 1.7009999999999998
 scale_height = 0.111
 scattering_strength = 1.625
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+motion_mode = 1
+script = ExtResource("13_j1g60")
+fly_speed = 0.5
+acceleration = 2
