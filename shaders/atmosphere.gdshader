@@ -14,6 +14,7 @@ uniform float atmosphere_blend_value = 0.5;
 uniform float scale_height = 0.25; // H_0
 
 uniform vec3 scattering_coefficients;
+uniform sampler2D out_scattering_lut : filter_linear, repeat_disable;
 
 bool solve_quadratic(float a, float b, float c, out float x0, out float x1) {
 	float discr = b * b - 4.0 * a * c;
@@ -88,9 +89,25 @@ HitInfo ray_sphere_intersect(Ray ray, float radius) {
 	return hit_info;
 }
 
-float compute_local_density(vec3 point) {
-	float dist_from_surface = length(point - planet_center_world) - planet_radius;
+float surface_distance(vec3 point) {
+	return length(point - planet_center_world) - planet_radius;
+}
+
+// Computes the distance betwen the planet and the top of atmosphere in range (0, 1)
+float scaled_atmosphere_dist(vec3 point) {
+	float dist_from_surface = surface_distance(point);
 	float scaled_dist = dist_from_surface / (atmosphere_radius - planet_radius);
+	
+	return scaled_dist;
+}
+
+bool inside_atmosphere(vec3 point) {
+	float dist_from_surface = surface_distance(point);
+	return dist_from_surface <= atmosphere_radius;
+}
+
+float compute_local_density(vec3 point) {
+	float scaled_dist = scaled_atmosphere_dist(point);
 
 	return exp(-scaled_dist / scale_height);
 }
@@ -109,7 +126,18 @@ float compute_optical_depth(vec3 ray_start, vec3 target_dir, float ray_length) {
 	return optical_depth;
 }
 
-vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir, vec3 original_col) {
+float compute_optical_depth_baked(vec3 ray_start, vec3 target_dir) {
+	float scaled_height = scaled_atmosphere_dist(ray_start);
+	
+	vec3 up = normalize(ray_start - planet_center_world);
+	float cos_theta = clamp(dot(up, target_dir), -1.0, 1.0);
+	float angle = acos(cos_theta) / PI;
+
+	vec2 uv = vec2(scaled_height, angle);
+	return texture(out_scattering_lut, uv).r;
+}
+
+vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir, vec3 original_col, vec3 camera_pos) {
 	float ray_len = length(ray_exit - ray_entrance);
 	vec3 in_scatter_point = ray_entrance;
 	vec3 in_scattered_light = vec3(0.0);
@@ -121,10 +149,8 @@ vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir, vec3 o
 		float density = compute_local_density(in_scatter_point);
 
 		vec3 dir_to_sun = normalize(sun_pos_world - in_scatter_point);
-		Ray sun_ray = make_ray(in_scatter_point, dir_to_sun);
-		float sun_ray_length = ray_sphere_intersect(sun_ray, atmosphere_radius).x1;
-		float optical_depth_sun = compute_optical_depth(in_scatter_point, dir_to_sun, sun_ray_length);
-
+		float optical_depth_sun = compute_optical_depth_baked(in_scatter_point, dir_to_sun);
+		
 		float view_ray_length = step_size * float(i);
 		optical_depth_view = compute_optical_depth(in_scatter_point, -ray_dir, view_ray_length);
 
@@ -166,7 +192,7 @@ void fragment() {
 	if (atmosphere_hit.hit) {
 		vec3 ray_start_atmosphere = point_on_ray(view_ray, atmosphere_hit.x0);
 		vec3 ray_end_atmosphere = point_on_ray(view_ray, atmosphere_hit.x1);
-		vec3 light = calculate_scattering(ray_start_atmosphere, ray_end_atmosphere, view_ray.direction, original_color);
+		vec3 light = calculate_scattering(ray_start_atmosphere, ray_end_atmosphere, view_ray.direction, original_color, view_ray.origin);
 		ALBEDO = light;
 	} else {
 		ALBEDO = screen.rgb;

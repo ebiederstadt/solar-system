@@ -1,33 +1,35 @@
 extends MeshInstance3D
 
+const OutScatteringTextureBuilder = preload("res://scripts/out_scattering_texture.gd")
+
 @export var camera: Camera3D
 @export var quad_mesh_instance: MeshInstance3D
 @export var planet_instance: MeshInstance3D
 @export var sun_instance: MeshInstance3D
+@export_range(16, 1024, 1) var out_scattering_lut_width := 256
+@export_range(16, 1024, 1) var out_scattering_lut_height := 64
 @export_range(1.001, 5.0, 0.05) var atmosphere_radius: float = 1.2:
 	set(value):
 		atmosphere_radius = value
 		_update_shader_param("atmosphere_radius", atmosphere_radius)
+		_rebuild_out_scattering_lut()
 
-@export var num_in_scattering_points := 50:
+@export var num_in_scattering_points := 100:
 	set(value):
 		num_in_scattering_points = value
 		_update_shader_param("num_in_scattering_points", num_in_scattering_points)
 
-@export var num_optical_depth_points := 20:
+@export var num_optical_depth_points := 50:
 	set(value):
 		num_optical_depth_points = value
 		_update_shader_param("num_optical_depth_points", num_optical_depth_points)
-
-@export_range(0.0, 0.5, 0.005) var atmosphere_blend_value := 0.5:
-	set(value):
-		atmosphere_blend_value = value
-		_update_shader_param("atmosphere_blend_value", atmosphere_blend_value)
+		_rebuild_out_scattering_lut()
 
 @export_range(0.001, 1.0, 0.005) var scale_height := 0.25:
 	set(value):
 		scale_height = value
 		_update_shader_param("scale_height", scale_height)
+		_rebuild_out_scattering_lut()
 
 @export var scattering_strength := 1.0:
 	set(value):
@@ -64,6 +66,7 @@ func _ready() -> void:
 	assert(sun_mesh != null, "The sun must be a sphere")
 
 	_sync_static_shader_params()
+	_rebuild_out_scattering_lut()
 
 func _process(_delta: float) -> void:
 	var sphere_center = planet_instance.global_position
@@ -79,6 +82,7 @@ func _process(_delta: float) -> void:
 	if not is_equal_approx(planet_radius, _last_planet_radius):
 		_last_planet_radius = planet_radius
 		material.set_shader_parameter("planet_radius", planet_radius)
+		_rebuild_out_scattering_lut()
 
 	if not sun_center.is_equal_approx(_last_sun_center):
 		_last_sun_center = sun_center
@@ -106,6 +110,19 @@ func _sync_static_shader_params() -> void:
 	_update_shader_param("atmosphere_radius", atmosphere_radius)
 	_update_shader_param("num_in_scattering_points", num_in_scattering_points)
 	_update_shader_param("num_optical_depth_points", num_optical_depth_points)
-	_update_shader_param("atmosphere_blend_value", atmosphere_blend_value)
 	_update_shader_param("scale_height", scale_height)
 	_update_scattering_coefficients()
+
+
+func _rebuild_out_scattering_lut() -> void:
+	if material == null or planet_mesh == null:
+		return
+
+	var builder := OutScatteringTextureBuilder.new(
+		get_radius(planet_mesh),
+		atmosphere_radius,
+		scale_height,
+		num_optical_depth_points
+	)
+	var texture := builder.build_texture(out_scattering_lut_width, out_scattering_lut_height)
+	material.set_shader_parameter("out_scattering_lut", texture)
