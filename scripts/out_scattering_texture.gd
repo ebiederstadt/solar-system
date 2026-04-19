@@ -24,9 +24,9 @@ func build_texture(width: int, height: int) -> ImageTexture:
 	var image := Image.create_empty(width, height, false, Image.FORMAT_RF)
 
 	for y in height:
-		var vertical_angle_scaled := float(y) / float(max(height - 1, 1))
+		var vertical_angle_scaled := (float(y) + 0.5) / float(max(height, 1))
 		for x in width:
-			var height_scaled := float(x) / float(max(width - 1, 1))
+			var height_scaled := (float(x) + 0.5) / float(max(width, 1))
 			var optical_depth := _compute_optical_depth_to_atmosphere_edge(height_scaled, vertical_angle_scaled)
 			image.set_pixel(x, y, Color(optical_depth, 0.0, 0.0, 1.0))
 

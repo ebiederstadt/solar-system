@@ -97,7 +97,7 @@ float surface_distance(vec3 point) {
 float scaled_atmosphere_dist(vec3 point) {
 	float dist_from_surface = surface_distance(point);
 	float scaled_dist = dist_from_surface / (atmosphere_radius - planet_radius);
-	
+
 	return scaled_dist;
 }
 
@@ -128,7 +128,7 @@ float compute_optical_depth(vec3 ray_start, vec3 target_dir, float ray_length) {
 
 float compute_optical_depth_baked(vec3 ray_start, vec3 target_dir) {
 	float scaled_height = scaled_atmosphere_dist(ray_start);
-	
+
 	vec3 up = normalize(ray_start - planet_center_world);
 	float cos_theta = clamp(dot(up, target_dir), -1.0, 1.0);
 	float angle = acos(cos_theta) / PI;
@@ -150,16 +150,16 @@ vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir, vec3 o
 
 		vec3 dir_to_sun = normalize(sun_pos_world - in_scatter_point);
 		float optical_depth_sun = compute_optical_depth_baked(in_scatter_point, dir_to_sun);
-		
+
 		float view_ray_length = step_size * float(i);
-		optical_depth_view = compute_optical_depth(in_scatter_point, -ray_dir, view_ray_length);
+		optical_depth_view = compute_optical_depth_baked(in_scatter_point, -ray_dir);
 
 		vec3 transmittance = exp(-(optical_depth_sun + optical_depth_view) * scattering_coefficients);
 
 		in_scattered_light += density * transmittance * scattering_coefficients * step_size;
 		in_scatter_point += ray_dir * step_size;
 	}
-	
+
 	float original_col_transmittance = exp(-optical_depth_view);
 	return original_col * original_col_transmittance + in_scattered_light;
 }
