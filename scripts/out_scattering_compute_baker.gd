@@ -166,15 +166,12 @@ func _pack_params(
 	height: int
 ) -> PackedByteArray:
 	var buffer := StreamPeerBuffer.new()
-	buffer.big_endian = false
 	buffer.put_float(planet_radius)
 	buffer.put_float(atmosphere_radius)
 	buffer.put_float(scale_height)
 	buffer.put_32(num_optical_depth_points)
 	buffer.put_32(width)
 	buffer.put_32(height)
-	buffer.put_float(0.0)
-	buffer.put_float(0.0)
 	return buffer.data_array
 
 

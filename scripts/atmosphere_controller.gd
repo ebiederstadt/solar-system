@@ -8,7 +8,7 @@ const OutScatteringComputeBakerScript = preload("res://scripts/out_scattering_co
 @export var planet_instance: MeshInstance3D
 @export var sun_instance: MeshInstance3D
 @export_range(16, 1024, 1) var out_scattering_lut_width := 256
-@export_range(16, 1024, 1) var out_scattering_lut_height := 64
+@export_range(16, 1024, 1) var out_scattering_lut_height := 128
 @export_range(1.001, 5.0, 0.05) var atmosphere_radius: float = 1.2:
 	set(value):
 		atmosphere_radius = value

@@ -12,8 +12,6 @@ layout(set = 0, binding = 0, std140) uniform Params {
 	int num_optical_depth_points;
 	int lut_width;
 	int lut_height;
-	float pad0;
-	float pad1;
 } params;
 
 layout(r32f, set = 0, binding = 1) uniform restrict writeonly image2D out_lut;
@@ -26,14 +24,19 @@ void main() {
 		return;
 	}
 
+	// Calculate the UV coordinates
 	float scaled_height = (float(coord.x) + 0.5) / float(max(params.lut_width, 1));
-	float vertical_angle01 = (float(coord.y) + 0.5) / float(max(params.lut_height, 1));
+	float scaled_angle = (float(coord.y) + 0.5) / float(max(params.lut_height, 1));
+
+	// Calculate the "world space" coordinates
 	float radius = mix(params.planet_radius, params.atmosphere_radius, clamp(scaled_height, 0.0, 1.0));
+	float vertical_angle = mix(0.0, PI, clamp(scaled_angle, 0.0, 1.0));
+
 	vec3 ray_origin = vec3(radius, 0.0, 0.0);
 	vec3 up = normalize(ray_origin);
 	vec3 tangent = vec3(0.0, 0.0, 1.0);
-	float vertical_angle = mix(0.0, PI, clamp(vertical_angle01, 0.0, 1.0));
 	Ray ray = make_ray(ray_origin, up * cos(vertical_angle) + tangent * sin(vertical_angle));
+
 	float ray_length = atmosphere_ray_sphere_intersections(ray, vec3(0.0), params.atmosphere_radius).x1;
 	float optical_depth = compute_optical_depth(
 		ray,
