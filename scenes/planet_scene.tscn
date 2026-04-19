@@ -38,10 +38,11 @@ albedo_texture = ExtResource("4_jnlp7")
 [sub_resource type="SphereMesh" id="SphereMesh_vvh5c"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jnlp7"]
+albedo_color = Color(0.8728572, 0.8770553, 0.8942259, 1)
 albedo_texture = ExtResource("4_28aoi")
 emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 10.0
+emission = Color(0.30137768, 0.601145, 0.53343093, 1)
+emission_energy_multiplier = 6.01
 emission_texture = ExtResource("4_28aoi")
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_bf3um"]
@@ -123,6 +124,6 @@ camera = NodePath("../Camera Pivot/Camera3D")
 quad_mesh_instance = NodePath(".")
 planet_instance = NodePath("../Earth Planet")
 sun_instance = NodePath("../Sun")
-atmosphere_radius = 3.351
+atmosphere_radius = 3.751
 scale_height = 0.006
 scattering_strength = 8.975

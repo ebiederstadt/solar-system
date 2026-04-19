@@ -1,6 +1,8 @@
 shader_type spatial;
 render_mode unshaded, fog_disabled, blend_mix;
 
+#include "res://shaders/atmosphere_common.gdshaderinc"
+
 uniform sampler2D screen_texture : source_color, hint_screen_texture;
 uniform vec3 planet_center_world = vec3(0.0, 0.0, 0.0);
 uniform vec3 sun_pos_world = vec3(0.0, 0.0, 0.0);
@@ -16,89 +18,27 @@ uniform float scale_height = 0.25; // H_0
 uniform vec3 scattering_coefficients;
 uniform sampler2D out_scattering_lut : filter_linear, repeat_disable;
 
-bool solve_quadratic(float a, float b, float c, out float x0, out float x1) {
-	float discr = b * b - 4.0 * a * c;
- 	if (discr < 0.0) return false;
-
-	if (discr == 0.0) {
-		x0 = -0.5 * b / a;
-		x1 = x0;
-		return true;
-	}
-
-	float q = (b > 0.0) ?
-	    -0.5 * (b + sqrt(discr)) :
-	    -0.5 * (b - sqrt(discr));
-	x0 = q / a;
-	x1 = c / q;
-
-	if (x1 < x0) {
-		float tmp = x0;
-		x0 = x1;
-		x1 = tmp;
-	}
-
-	return true;
-}
-
-struct Ray {
-	vec3 origin;
-	vec3 direction;
-};
-
-Ray make_ray(vec3 origin, vec3 direction) {
-	Ray ray;
-	ray.origin = origin;
-	ray.direction = normalize(direction);
-	return ray;
-}
-
-struct HitInfo {
-	bool hit;
-	float x0;
-	float x1;
-};
-
-// Evaluates r(t) = O + tD
-vec3 point_on_ray(Ray ray, float t) {
-	return ray.origin + ray.direction * t;
-}
-
 HitInfo ray_sphere_intersect(Ray ray, float radius) {
-	HitInfo hit_info = HitInfo(false, 0.0, 0.0);
-
-	vec3 oc = ray.origin - planet_center_world;
-	float a = dot(ray.direction, ray.direction);
-	float b = 2.0 * dot(ray.direction, oc);
-	float c = dot(oc, oc) - radius * radius;
-
-	float x0;
-	float x1;
-	if (!solve_quadratic(a, b, c, x0, x1)) {
+	HitInfo hit_info = atmosphere_ray_sphere_intersections(ray, planet_center_world, radius);
+	if (!hit_info.hit) {
 		return hit_info;
 	}
 
-	if (x1 < 0.0) {
+	if (hit_info.x1 < 0.0) {
 		return hit_info;
 	}
 
-	hit_info.hit = true;
-	hit_info.x0 = max(x0, 0.0);
-	hit_info.x1 = x1;
-
+	hit_info.x0 = max(hit_info.x0, 0.0);
 	return hit_info;
 }
 
 float surface_distance(vec3 point) {
-	return length(point - planet_center_world) - planet_radius;
+	return surface_distance(point, planet_center_world, planet_radius);
 }
 
 // Computes the distance betwen the planet and the top of atmosphere in range (0, 1)
 float scaled_atmosphere_dist(vec3 point) {
-	float dist_from_surface = surface_distance(point);
-	float scaled_dist = dist_from_surface / (atmosphere_radius - planet_radius);
-
-	return scaled_dist;
+	return scaled_height(point, planet_center_world, planet_radius, atmosphere_radius);
 }
 
 bool inside_atmosphere(vec3 point) {
@@ -106,24 +46,17 @@ bool inside_atmosphere(vec3 point) {
 	return dist_from_surface <= atmosphere_radius;
 }
 
-float compute_local_density(vec3 point) {
-	float scaled_dist = scaled_atmosphere_dist(point);
-
-	return exp(-scaled_dist / scale_height);
-}
-
 /// Numerically integrate out-scattering (optical depth) within a boundary
 float compute_optical_depth(vec3 ray_start, vec3 target_dir, float ray_length) {
-	vec3 ray_pos = ray_start;
-	float step_size = ray_length / float(num_optical_depth_points - 1);
-	float optical_depth = 0.0;
-
-	for (int i = 0; i < num_optical_depth_points; i++) {
-		optical_depth += compute_local_density(ray_pos) * step_size;
-		ray_pos += target_dir * step_size;
-	}
-
-	return optical_depth;
+	return compute_optical_depth(
+		make_ray(ray_start, target_dir),
+		ray_length,
+		num_optical_depth_points,
+		planet_center_world,
+		planet_radius,
+		atmosphere_radius,
+		scale_height
+	);
 }
 
 float compute_optical_depth_baked(vec3 ray_start, vec3 target_dir) {
@@ -162,7 +95,13 @@ vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir, vec3 o
 
 	for (int i = 0; i < num_in_scattering_points; i++) {
 		// exp(-h - H_0)
-		float density = compute_local_density(in_scatter_point);
+		float density = compute_local_density(
+			in_scatter_point,
+			planet_center_world,
+			planet_radius,
+			atmosphere_radius,
+			scale_height
+		);
 
 		vec3 dir_to_sun = normalize(sun_pos_world - in_scatter_point);
 		float optical_depth_sun = compute_optical_depth_baked(in_scatter_point, dir_to_sun);
