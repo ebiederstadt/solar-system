@@ -1,6 +1,7 @@
 extends MeshInstance3D
 
 const OutScatteringTextureBuilder = preload("res://scripts/out_scattering_texture.gd")
+const OutScatteringComputeBakerScript = preload("res://scripts/out_scattering_compute_baker.gd")
 
 @export var camera: Camera3D
 @export var quad_mesh_instance: MeshInstance3D
@@ -44,6 +45,7 @@ const OutScatteringTextureBuilder = preload("res://scripts/out_scattering_textur
 var material: ShaderMaterial
 var planet_mesh: SphereMesh
 var sun_mesh: SphereMesh
+var out_scattering_compute_baker: OutScatteringComputeBaker
 var _last_planet_center := Vector3.INF
 var _last_planet_radius := -1.0
 var _last_sun_center := Vector3.INF
@@ -65,6 +67,7 @@ func _ready() -> void:
 	sun_mesh = sun_instance.mesh as SphereMesh
 	assert(sun_mesh != null, "The sun must be a sphere")
 
+	out_scattering_compute_baker = OutScatteringComputeBakerScript.new()
 	_sync_static_shader_params()
 	_rebuild_out_scattering_lut()
 
@@ -118,8 +121,22 @@ func _rebuild_out_scattering_lut() -> void:
 	if material == null or planet_mesh == null:
 		return
 
+	var planet_radius = get_radius(planet_mesh)
+	if out_scattering_compute_baker != null:
+		var compute_texture := out_scattering_compute_baker.build_texture(
+			out_scattering_lut_width,
+			out_scattering_lut_height,
+			planet_radius,
+			atmosphere_radius,
+			scale_height,
+			num_optical_depth_points
+		)
+		if compute_texture != null:
+			material.set_shader_parameter("out_scattering_lut", compute_texture)
+			return
+
 	var builder := OutScatteringTextureBuilder.new(
-		get_radius(planet_mesh),
+		planet_radius,
 		atmosphere_radius,
 		scale_height,
 		num_optical_depth_points

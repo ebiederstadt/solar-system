@@ -37,20 +37,15 @@ func _input(event):
 
 		distance = clamp(distance, min_distance, max_distance)
 
-func _process(_delta):
-	if target:
-		global_transform.origin = target.global_transform.origin
-
-	# Apply rotation
-	rotation = Vector3(pitch, yaw, 0)
-
 	# Zoom (mouse wheel)
 	if Input.is_action_just_pressed("ui_page_up"):
 		distance -= zoom_speed
 	if Input.is_action_just_pressed("ui_page_down"):
 		distance += zoom_speed
 
-	distance = clamp(distance, 1.0, 20.0)
+func _process(_delta):
+	if target:
+		global_transform.origin = target.global_transform.origin
 
-	# Move camera along local Z
+	rotation = Vector3(pitch, yaw, 0)
 	camera_ref.transform.origin = Vector3(0, 0, distance)
