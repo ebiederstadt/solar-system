@@ -13,6 +13,8 @@ uniform int num_optical_depth_points = 20;
 uniform float atmosphere_blend_value = 0.5;
 uniform float scale_height = 0.25; // H_0
 
+uniform vec3 scattering_coefficients;
+
 bool solve_quadratic(float a, float b, float c, out float x0, out float x1) {
 	float discr = b * b - 4.0 * a * c;
  	if (discr < 0.0) return false;
@@ -107,10 +109,11 @@ float compute_optical_depth(vec3 ray_start, vec3 target_dir, float ray_length) {
 	return optical_depth;
 }
 
-vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir) {
+vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir, vec3 original_col) {
 	float ray_len = length(ray_exit - ray_entrance);
 	vec3 in_scatter_point = ray_entrance;
-	float in_scattered_light = 0.0;
+	vec3 in_scattered_light = vec3(0.0);
+	float optical_depth_view;
 	float step_size = ray_len / float(num_in_scattering_points - 1);
 
 	for (int i = 0; i < num_in_scattering_points; i++) {
@@ -123,15 +126,16 @@ vec3 calculate_scattering(vec3 ray_entrance, vec3 ray_exit, vec3 ray_dir) {
 		float optical_depth_sun = compute_optical_depth(in_scatter_point, dir_to_sun, sun_ray_length);
 
 		float view_ray_length = step_size * float(i);
-		float optical_depth_view = compute_optical_depth(in_scatter_point, -ray_dir, view_ray_length);
+		optical_depth_view = compute_optical_depth(in_scatter_point, -ray_dir, view_ray_length);
 
-		float transmittance = exp(-(optical_depth_sun + optical_depth_view));
+		vec3 transmittance = exp(-(optical_depth_sun + optical_depth_view) * scattering_coefficients);
 
-		in_scattered_light += density * transmittance * step_size;
+		in_scattered_light += density * transmittance * scattering_coefficients * step_size;
 		in_scatter_point += ray_dir * step_size;
 	}
-
-	return vec3(in_scattered_light);
+	
+	float original_col_transmittance = exp(-optical_depth_view);
+	return original_col * original_col_transmittance + in_scattered_light;
 }
 
 void vertex() {
@@ -162,8 +166,8 @@ void fragment() {
 	if (atmosphere_hit.hit) {
 		vec3 ray_start_atmosphere = point_on_ray(view_ray, atmosphere_hit.x0);
 		vec3 ray_end_atmosphere = point_on_ray(view_ray, atmosphere_hit.x1);
-		vec3 in_scattered_light = calculate_scattering(ray_start_atmosphere, ray_end_atmosphere, view_ray.direction);
-		ALBEDO = original_color + in_scattered_light * atmosphere_blend_value;
+		vec3 light = calculate_scattering(ray_start_atmosphere, ray_end_atmosphere, view_ray.direction, original_color);
+		ALBEDO = light;
 	} else {
 		ALBEDO = screen.rgb;
 	}

@@ -68,6 +68,7 @@ shader_parameter/num_in_scattering_points = 50
 shader_parameter/num_optical_depth_points = 20
 shader_parameter/atmosphere_blend_value = 0.5
 shader_parameter/scale_height = 0.25
+shader_parameter/scattering_coefficients = Vector3(0, 0, 0)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tw3kd"]
 shading_mode = 0
@@ -81,7 +82,7 @@ size = Vector2(2, 2)
 [node name="Planet Scene" type="Node3D"]
 
 [node name="Earth Planet" type="MeshInstance3D" parent="." node_paths=PackedStringArray("sun")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.9677343, -2.324598, -5.4697933)
+transform = Transform3D(-0.39163068, 0, 0.9201225, 0, 1, 0, -0.9201225, 0, -0.39163068, -3.5923748, -2.324598, -5.4697933)
 mesh = SubResource("SphereMesh_vho56")
 script = ExtResource("2_vyht1")
 sun = NodePath("../Sun/Sun Lamp")
@@ -121,8 +122,8 @@ camera = NodePath("../Camera Pivot/Camera3D")
 quad_mesh_instance = NodePath(".")
 planet_instance = NodePath("../Earth Planet")
 sun_instance = NodePath("../Sun")
-atmosphere_radius = 2.0
-num_in_scattering_points = 85
-num_optical_depth_points = 95
-atmosphere_blend_value = 0.135
-scale_height = 0.101
+atmosphere_radius = 1.2009999999999998
+num_optical_depth_points = 50
+atmosphere_blend_value = 0.21
+scale_height = 0.066
+scattering_strength = 5.05
