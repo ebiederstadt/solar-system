@@ -58,7 +58,9 @@ sky_material = SubResource("PanoramaSkyMaterial_bf3um")
 [sub_resource type="Environment" id="Environment_l8v81"]
 background_mode = 2
 sky = SubResource("Sky_huihk")
-tonemap_exposure = 1.35
+tonemap_mode = 4
+tonemap_exposure = 1.52
+tonemap_white = 11.11
 glow_enabled = true
 glow_bloom = 0.18
 
@@ -134,10 +136,11 @@ camera = NodePath("../Camera Pivot/Camera3D")
 quad_mesh_instance = NodePath(".")
 planet_instance = NodePath("../Earth Planet")
 sun_instance = NodePath("../Sun")
-atmosphere_radius = 15.401
+atmosphere_radius = 15.801
 num_in_scattering_points = 150
 scale_height = 0.096
-scattering_strength = 5.0
+scattering_strength = 2.725
+wavelengths = [735, 865, 490]
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="."]
 transform = Transform3D(0.08, 0, 0, 0, 0.08, 0, 0, 0, 0.08, 140.461, 0, 0)
