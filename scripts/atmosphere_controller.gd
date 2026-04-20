@@ -9,7 +9,7 @@ const OutScatteringComputeBakerScript = preload("res://scripts/out_scattering_co
 @export var sun_instance: MeshInstance3D
 @export_range(16, 1024, 1) var out_scattering_lut_width := 256
 @export_range(16, 1024, 1) var out_scattering_lut_height := 128
-@export_range(1.001, 5.0, 0.05) var atmosphere_radius: float = 1.2:
+@export_range(1.001, 20.0, 0.05) var atmosphere_radius: float = 1.2:
 	set(value):
 		atmosphere_radius = value
 		_update_shader_param("atmosphere_radius", atmosphere_radius)
@@ -62,6 +62,10 @@ func _ready() -> void:
 	assert(planet_instance != null, "planet_instance must be assigned in the Inspector")
 	planet_mesh = planet_instance.mesh as SphereMesh
 	assert(planet_mesh != null, "The planet object must be a sphere")
+
+	var planet_radius = get_radius(planet_mesh)
+	if atmosphere_radius < planet_radius:
+		atmosphere_radius = planet_radius + 0.1
 
 	assert(sun_instance != null, "The sun must be assigned")
 	sun_mesh = sun_instance.mesh as SphereMesh

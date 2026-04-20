@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://ddxa2f0c72aan"]
+[gd_scene load_steps=27 format=3 uid="uid://ddxa2f0c72aan"]
 
 [ext_resource type="Shader" uid="uid://cmfseghp0woi8" path="res://shaders/planet.gdshader" id="1_l8v81"]
 [ext_resource type="Texture2D" uid="uid://cn2qkdjkbnf06" path="res://assets/textures/8k_earth_nightmap.jpg" id="2_tw3kd"]
@@ -31,6 +31,9 @@ material = SubResource("ShaderMaterial_l8v81")
 radius = 1.0
 height = 2.0
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_earth"]
+radius = 1.0
+
 [sub_resource type="SphereMesh" id="SphereMesh_28aoi"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_28aoi"]
@@ -42,8 +45,8 @@ albedo_texture = ExtResource("4_jnlp7")
 albedo_color = Color(0.8728572, 0.8770553, 0.8942259, 1)
 albedo_texture = ExtResource("4_28aoi")
 emission_enabled = true
-emission = Color(0.30137768, 0.601145, 0.53343093, 1)
-emission_energy_multiplier = 6.01
+emission = Color(0.79133284, 0.8126765, 0.7848612, 1)
+emission_energy_multiplier = 100.0
 emission_texture = ExtResource("4_28aoi")
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_bf3um"]
@@ -85,13 +88,18 @@ size = Vector2(2, 2)
 [node name="Planet Scene" type="Node3D"]
 
 [node name="Earth Planet" type="MeshInstance3D" parent="." node_paths=PackedStringArray("sun")]
-transform = Transform3D(-0.39163068, 0, 0.9201225, 0, 1, 0, -0.9201225, 0, -0.39163068, -3.5923748, -2.324598, -5.4697933)
+transform = Transform3D(-4.6995683, 0, 11.04147, 0, 12, 0, -11.04147, 0, -4.6995683, 174.78699, -2.324598, -5.4697933)
 mesh = SubResource("SphereMesh_vho56")
 script = ExtResource("2_vyht1")
 sun = NodePath("../Sun/Sun Lamp")
 
+[node name="StaticBody3D" type="StaticBody3D" parent="Earth Planet"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Earth Planet/StaticBody3D"]
+shape = SubResource("SphereShape3D_earth")
+
 [node name="Moon" type="MeshInstance3D" parent="Earth Planet"]
-transform = Transform3D(0.375, 0, 0, 0, 0.375, 0, 0, 0, 0.375, 2.5664382, 0, 0)
+transform = Transform3D(0.37499997, 0, 0, 0, 0.37499994, 0, 0, 0, 0.37499997, 5.6135263, 0, -1.3808613)
 mesh = SubResource("SphereMesh_28aoi")
 surface_material_override/0 = SubResource("StandardMaterial3D_28aoi")
 
@@ -104,6 +112,7 @@ target = NodePath("../Earth Planet")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.9677343, -2.324598, -2.0342789)
 
 [node name="Sun" type="MeshInstance3D" parent="."]
+transform = Transform3D(7, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0)
 mesh = SubResource("SphereMesh_vvh5c")
 surface_material_override/0 = SubResource("StandardMaterial3D_jnlp7")
 
@@ -125,12 +134,15 @@ camera = NodePath("../Camera Pivot/Camera3D")
 quad_mesh_instance = NodePath(".")
 planet_instance = NodePath("../Earth Planet")
 sun_instance = NodePath("../Sun")
-atmosphere_radius = 1.7009999999999998
-scale_height = 0.111
-scattering_strength = 1.625
+atmosphere_radius = 15.401
+num_in_scattering_points = 150
+scale_height = 0.096
+scattering_strength = 5.0
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+transform = Transform3D(0.08, 0, 0, 0, 0.08, 0, 0, 0, 0.08, 140.461, 0, 0)
 motion_mode = 1
 script = ExtResource("13_j1g60")
-fly_speed = 0.5
+fly_speed = 2.0
 acceleration = 2
+use_collision = true

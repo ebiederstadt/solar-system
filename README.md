@@ -13,4 +13,3 @@ Example Outputs:
 ![](images/2026-04-19T15-05-04.png)
 
 ![](images/2026-04-19T15-21-55.png)
-
