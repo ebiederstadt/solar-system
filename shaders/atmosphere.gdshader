@@ -26,7 +26,7 @@ HitInfo ray_sphere_intersect(Ray ray, float radius) {
 	}
 
 	if (hit_info.x1 < 0.0) {
-		return hit_info;
+		return HitInfo(false, 0.0, 0.0);
 	}
 
 	hit_info.x0 = max(hit_info.x0, 0.0);
