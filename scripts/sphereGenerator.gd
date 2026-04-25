@@ -2,6 +2,11 @@
 extends MeshInstance3D
 
 @export var update = false
+@export_range(0, 10, 1) var subdiv_levels := 1:
+	set(val):
+		subdiv_levels = val
+		gen_mesh()
+
 
 func _ready():
 	gen_mesh()
@@ -11,23 +16,6 @@ func _process(_delta: float):
 	if update:
 		gen_mesh()
 		update = false
-
-
-func gen_outline(vertices: PackedVector3Array, indices: PackedInt32Array):
-	var line_indices = PackedInt32Array()
-	for i in range(0, indices.size(), 3):
-		var a = indices[i]
-		var b = indices[i + 1]
-		var c = indices[i + 2]
-		line_indices.append_array([a, b, b, c, c, a])
-
-	var line_arrays = []
-	line_arrays.resize(Mesh.ARRAY_MAX)
-	line_arrays[Mesh.ARRAY_VERTEX] = vertices
-	line_arrays[Mesh.ARRAY_INDEX] = line_indices
-
-	return line_arrays
-	#array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, line_arrays)
 
 
 func gen_mesh():
@@ -78,21 +66,79 @@ func gen_mesh():
 		8, 7, 6,
 		9, 1, 8,
 	])
-
-	var normals = PackedVector3Array()
-	normals.resize(vertices.size())
-	for i in vertices.size():
-		normals[i] = vertices[i].normalized()
+	var subdivided = subdivide(vertices, indices, subdiv_levels)
+	vertices = subdivided["vertices"]
+	indices = subdivided["indices"]
 
 	var array_mesh = ArrayMesh.new()
 	var arrays = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
 	arrays[Mesh.ARRAY_INDEX] = indices
-	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_NORMAL] = gen_normals(vertices)
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
 	var line_arrays = gen_outline(vertices, indices)
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, line_arrays)
 
 	mesh = array_mesh
+
+func gen_normals(vertices: PackedVector3Array) -> PackedVector3Array:
+	var normals = PackedVector3Array()
+	normals.resize(vertices.size())
+	for i in vertices.size():
+		normals[i] = vertices[i].normalized()
+
+	return normals
+
+
+func gen_outline(vertices: PackedVector3Array, indices: PackedInt32Array) -> Array:
+	var line_indices = PackedInt32Array()
+	for i in range(0, indices.size(), 3):
+		var a = indices[i]
+		var b = indices[i + 1]
+		var c = indices[i + 2]
+		line_indices.append_array([a, b, b, c, c, a])
+
+	var line_arrays = []
+	line_arrays.resize(Mesh.ARRAY_MAX)
+	line_arrays[Mesh.ARRAY_VERTEX] = vertices
+	line_arrays[Mesh.ARRAY_INDEX] = line_indices
+
+	return line_arrays
+
+
+func subdivide(vertices: PackedVector3Array, indices: PackedInt32Array, subdivision_levels: int):
+	var final_vertices = PackedVector3Array()
+	var final_indices = PackedInt32Array()
+
+	for subdiv in range(subdivision_levels):
+		var out_vertices = PackedVector3Array()
+		var out_indices = PackedInt32Array()
+		var base = 0
+		for i in range(0, indices.size(), 3):
+			var v1 = vertices[indices[i]]
+			var v2 = vertices[indices[i + 1]]
+			var v3 = vertices[indices[i + 2]]
+
+			# Doing this interpolation in spherical space avoids the need to re-project in the future
+			var v4 = v1.slerp(v2, 0.5)
+			var v5 = v2.slerp(v3, 0.5)
+			var v6 = v3.slerp(v1, 0.5)
+
+			out_vertices.append_array([v1, v2, v3, v4, v5, v6])
+			out_indices.append_array([
+				base    , base + 3, base + 5, # 1, 4, 6
+				base + 3, base + 4, base + 5, # 4, 5, 6
+				base + 4, base + 2, base + 5, # 5, 3, 6
+				base + 3, base + 1, base + 4, # 4, 2, 5
+			])
+			base += 6
+
+		final_vertices = out_vertices
+		final_indices = out_indices
+
+		vertices = out_vertices
+		indices = out_indices
+
+	return {"vertices": final_vertices, "indices": final_indices}
