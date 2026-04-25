@@ -1,0 +1,63 @@
+[gd_scene load_steps=9 format=4 uid="uid://xti7a2hsc5mj"]
+
+[ext_resource type="Script" uid="uid://de085vl1dgnc8" path="res://scripts/sphere_generator.gd" id="1_g7svs"]
+[ext_resource type="Script" uid="uid://th6bbo1w7hcp" path="res://scripts/camera_pivot.gd" id="2_mx74i"]
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_mx74i"]
+_surfaces = [{
+"aabb": AABB(-0.8506508, -0.8506508, -0.8506508, 1.7013016, 1.7013016, 1.7013016),
+"format": 34359742471,
+"index_count": 60,
+"index_data": PackedByteArray("AAAFAAsAAAABAAUAAAAHAAEAAAAKAAcAAAALAAoAAQAJAAUABQAEAAsACwACAAoACgAGAAcABwAIAAEAAwAEAAkAAwACAAQAAwAGAAIAAwAIAAYAAwAJAAgABAAFAAkAAgALAAQABgAKAAIACAAHAAYACQABAAgA"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 12,
+"vertex_data": PackedByteArray("UJYGv0DEWT8AAAAAUJYGP0DEWT8AAAAAUJYGv0DEWb8AAAAAUJYGP0DEWb8AAAAAAAAAAFCWBr9AxFk/AAAAAFCWBj9AxFk/AAAAAFCWBr9AxFm/AAAAAFCWBj9AxFm/QMRZPwAAAABQlga/QMRZPwAAAABQlgY/QMRZvwAAAABQlga/QMRZvwAAAABQlgY/G08az/8/OKzjsBrP/z/G0xtP5DD/P8bT47DkMP8/OKz/fxtP/z84jP9/47CNZ/+fGs8AAI1n/58az////z84jP//47CNp8azGs//f3FYxrMAAOOwcVjGs+Qw/3+Np8az")
+}, {
+"aabb": AABB(-0.8506508, -0.8506508, -0.8506508, 1.7013016, 1.7013016, 1.7013016),
+"format": 34359742465,
+"index_count": 120,
+"index_data": PackedByteArray("AAAFAAUACwALAAAAAAABAAEABQAFAAAAAAAHAAcAAQABAAAAAAAKAAoABwAHAAAAAAALAAsACgAKAAAAAQAJAAkABQAFAAEABQAEAAQACwALAAUACwACAAIACgAKAAsACgAGAAYABwAHAAoABwAIAAgAAQABAAcAAwAEAAQACQAJAAMAAwACAAIABAAEAAMAAwAGAAYAAgACAAMAAwAIAAgABgAGAAMAAwAJAAkACAAIAAMABAAFAAUACQAJAAQAAgALAAsABAAEAAIABgAKAAoAAgACAAYACAAHAAcABgAGAAgACQABAAEACAAIAAkA"),
+"primitive": 1,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 12,
+"vertex_data": PackedByteArray("UJYGv0DEWT8AAAAAUJYGP0DEWT8AAAAAUJYGv0DEWb8AAAAAUJYGP0DEWb8AAAAAAAAAAFCWBr9AxFk/AAAAAFCWBj9AxFk/AAAAAFCWBr9AxFm/AAAAAFCWBj9AxFm/QMRZPwAAAABQlga/QMRZPwAAAABQlgY/QMRZvwAAAABQlga/QMRZvwAAAABQlgY/")
+}]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mx74i"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_mx74i"]
+
+[sub_resource type="Sky" id="Sky_1rxxy"]
+sky_material = SubResource("ProceduralSkyMaterial_mx74i")
+
+[sub_resource type="Environment" id="Environment_mx74i"]
+background_mode = 2
+sky = SubResource("Sky_1rxxy")
+
+[sub_resource type="SphereMesh" id="SphereMesh_buubq"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Sphere" type="MeshInstance3D" parent="."]
+mesh = SubResource("ArrayMesh_mx74i")
+surface_material_override/0 = SubResource("StandardMaterial3D_mx74i")
+script = ExtResource("1_g7svs")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.9091977, 0.3404323, -0.23971958, 0.37098488, -0.40098566, 0.8376043, 0.18902344, -0.8504803, -0.49087057, 0, 1.6891751, -1.045402)
+
+[node name="Camera Pivot" type="Node3D" parent="." node_paths=PackedStringArray("camera_ref", "target")]
+script = ExtResource("2_mx74i")
+camera_ref = NodePath("Camera3D")
+target = NodePath("../MeshInstance3D")
+
+[node name="Camera3D" type="Camera3D" parent="Camera Pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.9677343, -2.324598, -2.0342789)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_mx74i")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("SphereMesh_buubq")

@@ -1,26 +1,26 @@
 [gd_scene load_steps=27 format=3 uid="uid://ddxa2f0c72aan"]
 
-[ext_resource type="Shader" uid="uid://cmfseghp0woi8" path="res://shaders/planet.gdshader" id="1_l8v81"]
-[ext_resource type="Texture2D" uid="uid://cn2qkdjkbnf06" path="res://assets/textures/8k_earth_nightmap.jpg" id="2_tw3kd"]
-[ext_resource type="Script" uid="uid://c38tjd72hq043" path="res://scripts/planet_manager.gd" id="2_vyht1"]
-[ext_resource type="Texture2D" uid="uid://dum6llhgl2o2a" path="res://assets/textures/8k_earth_daymap.jpg" id="3_gd4vy"]
-[ext_resource type="Texture2D" uid="uid://cs1wj6db4ukai" path="res://assets/textures/2k_sun.jpg" id="4_28aoi"]
-[ext_resource type="Texture2D" uid="uid://c2gjujf1ty88q" path="res://assets/textures/2k_moon.jpg" id="4_jnlp7"]
-[ext_resource type="Texture2D" uid="uid://d1uqfqqnxwpnx" path="res://assets/textures/8k_earth_normal_map.png" id="4_qw60f"]
-[ext_resource type="Script" uid="uid://th6bbo1w7hcp" path="res://scripts/camera_pivot.gd" id="5_bf3um"]
-[ext_resource type="Script" uid="uid://t1km6vvhw8ey" path="res://scripts/sun_lamp.gd" id="6_l8v81"]
-[ext_resource type="Texture2D" uid="uid://db4n8okggcu8o" path="res://assets/textures/8k_stars_milky_way.jpg" id="7_vyht1"]
-[ext_resource type="Shader" uid="uid://bn7iqo0n8mf06" path="res://shaders/atmosphere.gdshader" id="11_gd4vy"]
-[ext_resource type="Script" uid="uid://dcov1xtrfrpl6" path="res://scripts/atmosphere_controller.gd" id="12_qw60f"]
-[ext_resource type="Script" uid="uid://cte4jalives85" path="res://addons/sk_fly_camera/src/fly_camera.gd" id="13_j1g60"]
+[ext_resource type="Shader" uid="uid://cmfseghp0woi8" path="res://shaders/spatial/planet.gdshader" id="1_gbbf1"]
+[ext_resource type="Texture2D" uid="uid://cn2qkdjkbnf06" path="res://assets/textures/8k_earth_nightmap.jpg" id="2_jjnsc"]
+[ext_resource type="Texture2D" uid="uid://dum6llhgl2o2a" path="res://assets/textures/8k_earth_daymap.jpg" id="3_7wbva"]
+[ext_resource type="Texture2D" uid="uid://d1uqfqqnxwpnx" path="res://assets/textures/8k_earth_normal_map.png" id="4_qyp3d"]
+[ext_resource type="Script" uid="uid://c38tjd72hq043" path="res://scripts/planet_manager.gd" id="5_okvau"]
+[ext_resource type="Texture2D" uid="uid://c2gjujf1ty88q" path="res://assets/textures/2k_moon.jpg" id="6_eyw6p"]
+[ext_resource type="Script" uid="uid://th6bbo1w7hcp" path="res://scripts/camera_pivot.gd" id="7_llyyc"]
+[ext_resource type="Texture2D" uid="uid://cs1wj6db4ukai" path="res://assets/textures/2k_sun.jpg" id="8_w6l7t"]
+[ext_resource type="Script" uid="uid://t1km6vvhw8ey" path="res://scripts/sun_lamp.gd" id="9_ltm5w"]
+[ext_resource type="Texture2D" uid="uid://db4n8okggcu8o" path="res://assets/textures/8k_stars_milky_way.jpg" id="10_qmie5"]
+[ext_resource type="Shader" uid="uid://bn7iqo0n8mf06" path="res://shaders/spatial/atmosphere.gdshader" id="11_f8d1j"]
+[ext_resource type="Script" uid="uid://dcov1xtrfrpl6" path="res://scripts/atmosphere_controller.gd" id="12_6o6oq"]
+[ext_resource type="Script" uid="uid://cte4jalives85" path="res://addons/sk_fly_camera/src/fly_camera.gd" id="13_r8hco"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_l8v81"]
 render_priority = 0
-shader = ExtResource("1_l8v81")
-shader_parameter/day_texture = ExtResource("3_gd4vy")
-shader_parameter/night_texture = ExtResource("2_tw3kd")
-shader_parameter/city_lights_texture = ExtResource("2_tw3kd")
-shader_parameter/normal_texture = ExtResource("4_qw60f")
+shader = ExtResource("1_gbbf1")
+shader_parameter/day_texture = ExtResource("3_7wbva")
+shader_parameter/night_texture = ExtResource("2_jjnsc")
+shader_parameter/city_lights_texture = ExtResource("2_jjnsc")
+shader_parameter/normal_texture = ExtResource("4_qyp3d")
 shader_parameter/sun_direction_world = Vector3(1, 0, 0)
 shader_parameter/terminator_softness = 0.05
 shader_parameter/city_light_strength = 2.0
@@ -37,20 +37,20 @@ radius = 1.0
 [sub_resource type="SphereMesh" id="SphereMesh_28aoi"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_28aoi"]
-albedo_texture = ExtResource("4_jnlp7")
+albedo_texture = ExtResource("6_eyw6p")
 
 [sub_resource type="SphereMesh" id="SphereMesh_vvh5c"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jnlp7"]
 albedo_color = Color(0.8728572, 0.8770553, 0.8942259, 1)
-albedo_texture = ExtResource("4_28aoi")
+albedo_texture = ExtResource("8_w6l7t")
 emission_enabled = true
 emission = Color(0.79133284, 0.8126765, 0.7848612, 1)
 emission_energy_multiplier = 100.0
-emission_texture = ExtResource("4_28aoi")
+emission_texture = ExtResource("8_w6l7t")
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_bf3um"]
-panorama = ExtResource("7_vyht1")
+panorama = ExtResource("10_qmie5")
 
 [sub_resource type="Sky" id="Sky_huihk"]
 sky_material = SubResource("PanoramaSkyMaterial_bf3um")
@@ -66,7 +66,7 @@ glow_bloom = 0.18
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_gd4vy"]
 render_priority = 0
-shader = ExtResource("11_gd4vy")
+shader = ExtResource("11_f8d1j")
 shader_parameter/planet_center_world = Vector3(0, 0, 0)
 shader_parameter/sun_pos_world = Vector3(0, 0, 0)
 shader_parameter/sun_radius = 1.0
@@ -92,7 +92,7 @@ size = Vector2(2, 2)
 [node name="Earth Planet" type="MeshInstance3D" parent="." node_paths=PackedStringArray("sun")]
 transform = Transform3D(-4.6995683, 0, 11.04147, 0, 12, 0, -11.04147, 0, -4.6995683, 174.78699, -2.324598, -5.4697933)
 mesh = SubResource("SphereMesh_vho56")
-script = ExtResource("2_vyht1")
+script = ExtResource("5_okvau")
 sun = NodePath("../Sun/Sun Lamp")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Earth Planet"]
@@ -106,7 +106,7 @@ mesh = SubResource("SphereMesh_28aoi")
 surface_material_override/0 = SubResource("StandardMaterial3D_28aoi")
 
 [node name="Camera Pivot" type="Node3D" parent="." node_paths=PackedStringArray("camera_ref", "target")]
-script = ExtResource("5_bf3um")
+script = ExtResource("7_llyyc")
 camera_ref = NodePath("Camera3D")
 target = NodePath("../Earth Planet")
 
@@ -120,18 +120,18 @@ surface_material_override/0 = SubResource("StandardMaterial3D_jnlp7")
 
 [node name="Sun Lamp" type="DirectionalLight3D" parent="Sun" node_paths=PackedStringArray("target")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 2.5268002, -3.8769865)
-script = ExtResource("6_l8v81")
+script = ExtResource("9_ltm5w")
 target = NodePath("../../Earth Planet")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_l8v81")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." node_paths=PackedStringArray("camera", "quad_mesh_instance", "planet_instance", "sun_instance")]
+[node name="ScatteringQuad" type="MeshInstance3D" parent="." node_paths=PackedStringArray("camera", "quad_mesh_instance", "planet_instance", "sun_instance")]
 material_override = SubResource("ShaderMaterial_gd4vy")
 extra_cull_margin = 16384.0
 mesh = SubResource("QuadMesh_tw3kd")
 skeleton = NodePath("../Camera Pivot/Camera3D")
-script = ExtResource("12_qw60f")
+script = ExtResource("12_6o6oq")
 camera = NodePath("../Camera Pivot/Camera3D")
 quad_mesh_instance = NodePath(".")
 planet_instance = NodePath("../Earth Planet")
@@ -142,10 +142,10 @@ scale_height = 0.096
 scattering_strength = 2.725
 wavelengths = [735, 865, 490]
 
-[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
-transform = Transform3D(0.08, 0, 0, 0, 0.08, 0, 0, 0, 0.08, 140.461, 0, 0)
+[node name="PlayerCharacter" type="CharacterBody3D" parent="."]
+transform = Transform3D(9.539904e-10, 0, -0.08, 0, 0.08, 0, 0.08, 0, 9.539904e-10, 140.461, 0, 0.017924309)
 motion_mode = 1
-script = ExtResource("13_j1g60")
+script = ExtResource("13_r8hco")
 fly_speed = 2.0
 acceleration = 2
 use_collision = true
