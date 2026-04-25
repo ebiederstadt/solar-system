@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://deicdhw27hcrx"
+path="res://.godot/imported/out_scattering_lut.glsl-d491ba84fc20b09eaf359116298b9b31.res"
+
+[deps]
+
+source_file="res://shaders/compute/out_scattering_lut.glsl"
+dest_files=["res://.godot/imported/out_scattering_lut.glsl-d491ba84fc20b09eaf359116298b9b31.res"]
+
+[params]
+

@@ -2,7 +2,7 @@ class_name OutScatteringComputeBaker
 extends RefCounted
 
 
-const SHADER_PATH := "res://shaders/out_scattering_lut.glsl"
+const SHADER_PATH := "res://shaders/compute/out_scattering_lut.glsl"
 const PARAMS_BUFFER_SIZE := 32
 const WORKGROUP_SIZE_X := 8
 const WORKGROUP_SIZE_Y := 8
