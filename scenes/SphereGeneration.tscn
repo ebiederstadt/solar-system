@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=4 uid="uid://xti7a2hsc5mj"]
 
-[ext_resource type="Script" uid="uid://de085vl1dgnc8" path="res://scripts/sphere_generator.gd" id="1_g7svs"]
-[ext_resource type="Script" uid="uid://th6bbo1w7hcp" path="res://scripts/camera_pivot.gd" id="2_mx74i"]
+[ext_resource type="Script" uid="uid://de085vl1dgnc8" path="res://scripts/sphereGenerator.gd" id="1_g7svs"]
+[ext_resource type="Script" uid="uid://th6bbo1w7hcp" path="res://scripts/cameraPivot.gd" id="2_mx74i"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_mx74i"]
 _surfaces = [{
@@ -43,6 +43,7 @@ sky = SubResource("Sky_1rxxy")
 mesh = SubResource("ArrayMesh_mx74i")
 surface_material_override/0 = SubResource("StandardMaterial3D_mx74i")
 script = ExtResource("1_g7svs")
+num_subdivision_levels = null
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.9091977, 0.3404323, -0.23971958, 0.37098488, -0.40098566, 0.8376043, 0.18902344, -0.8504803, -0.49087057, 0, 1.6891751, -1.045402)

@@ -1,13 +1,13 @@
 [gd_scene load_steps=2 format=3 uid="uid://cogibj2bk20bl"]
 
-[ext_resource type="Script" uid="uid://dcr3g7fm6bk7p" path="res://scripts/texture_controller.gd" id="1_hmygm"]
+[ext_resource type="Script" uid="uid://dcr3g7fm6bk7p" path="res://scripts/textureController.gd" id="1_o7ooo"]
 
 [node name="Node2D" type="Node2D"]
 
 [node name="TextureRect" type="TextureRect" parent="." node_paths=PackedStringArray("texture_rect")]
 offset_right = 40.0
 offset_bottom = 40.0
-script = ExtResource("1_hmygm")
+script = ExtResource("1_o7ooo")
 texture_rect = NodePath(".")
 atmosphere_radius = 1.5
 scale_height = 0.1
