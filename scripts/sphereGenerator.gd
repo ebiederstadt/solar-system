@@ -62,7 +62,6 @@ extends MeshInstance3D
 
 var base_vertices: PackedVector3Array
 var base_indices: PackedInt32Array
-var base_normals: PackedVector3Array
 
 
 func _ready():
@@ -126,16 +125,16 @@ func gen_mesh():
 	var subdivided = subdivide(vertices, indices, subdiv_levels)
 	base_vertices = subdivided["vertices"]
 	base_indices = subdivided["indices"]
-	base_normals = gen_normals(base_vertices)
 
 	vertices = modify_height(base_vertices)
+	var normals = gen_normals(vertices, base_indices)
 
 	var array_mesh = ArrayMesh.new()
 	var arrays = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
 	arrays[Mesh.ARRAY_INDEX] = base_indices
-	arrays[Mesh.ARRAY_NORMAL] = base_normals
+	arrays[Mesh.ARRAY_NORMAL] = normals
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
 	var line_arrays = gen_outline(vertices, base_indices)
@@ -143,11 +142,28 @@ func gen_mesh():
 
 	mesh = array_mesh
 
-func gen_normals(vertices: PackedVector3Array) -> PackedVector3Array:
+func gen_normals(vertices: PackedVector3Array, indices: PackedInt32Array) -> PackedVector3Array:
 	var normals = PackedVector3Array()
 	normals.resize(vertices.size())
-	for i in vertices.size():
-		normals[i] = vertices[i].normalized()
+
+	# Accumulate face normals into each vertex
+	for i in range(0, indices.size(), 3):
+		var i1 = indices[i]
+		var i2 = indices[i + 1]
+		var i3 = indices[i + 2]
+
+		var v1 = vertices[i1]
+		var v2 = vertices[i2]
+		var v3 = vertices[i3]
+
+		var face_normal = (v2 - v1).cross(v3 - v1)
+		normals[i1] += face_normal
+		normals[i2] += face_normal
+		normals[i3] += face_normal
+
+	# Normalize the accumulated normals
+	for i in normals.size():
+		normals[i] = normals[i].normalized()
 
 	return normals
 
@@ -205,12 +221,14 @@ func subdivide(vertices: PackedVector3Array, indices: PackedInt32Array, subdivis
 
 
 func update_noise():
+	var vertices = modify_height(base_vertices)
+
 	var array_mesh = ArrayMesh.new()
 	var arrays = []
 	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = modify_height(base_vertices)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
 	arrays[Mesh.ARRAY_INDEX] = base_indices
-	arrays[Mesh.ARRAY_NORMAL] = base_normals
+	arrays[Mesh.ARRAY_NORMAL] = gen_normals(vertices, base_indices)
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
 	var line_arrays = gen_outline(base_vertices, base_indices)
