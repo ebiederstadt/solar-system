@@ -33,6 +33,33 @@ extends MeshInstance3D
 		fractal_gain = val
 		update_noise()
 
+@export_subgroup("Mask properties")
+@export var mask_frequency := 0.4:
+	set(val):
+		mask_frequency = val
+		update_noise()
+
+@export var mask_octaves := 2:
+	set(val):
+		mask_octaves = val
+		update_noise()
+
+@export_subgroup("Detail Properties")
+@export var mountain_frequency := 2.0:
+	set(val):
+		mountain_frequency = val
+		update_noise()
+
+@export var mountain_octaves := 6:
+	set(val):
+		mountain_octaves = val
+		update_noise()
+
+@export var power_curve_exponent := 0.5:
+	set(val):
+		power_curve_exponent = val
+		update_noise()
+
 var base_vertices: PackedVector3Array
 var base_indices: PackedInt32Array
 var base_normals: PackedVector3Array
@@ -192,15 +219,29 @@ func update_noise():
 	mesh = array_mesh
 
 func modify_height(vertices: PackedVector3Array) -> PackedVector3Array:
-	var noise = FastNoiseLite.new()
-	noise.seed = randi()
-	noise.frequency = frequency
-	noise.fractal_octaves = octaves
-	noise.noise_type = FastNoiseLite.TYPE_PERLIN
-	noise.fractal_lacunarity = fractal_lacunarity
-	noise.fractal_gain
+	var smooth_noise = FastNoiseLite.new()
+	smooth_noise.noise_type = FastNoiseLite.TYPE_PERLIN
+	smooth_noise.frequency = frequency
+	smooth_noise.fractal_octaves = octaves
+	smooth_noise.fractal_lacunarity = fractal_lacunarity
+	smooth_noise.fractal_gain = fractal_gain
+
+	var mask = FastNoiseLite.new()
+	mask.frequency = mask_frequency
+	mask.fractal_octaves = mask_octaves
+
+	var mountain_noise = FastNoiseLite.new()
+	mountain_noise.frequency = mountain_frequency
+	mountain_noise.fractal_octaves = mountain_octaves
+	mountain_noise.noise_type = FastNoiseLite.TYPE_PERLIN
+	mountain_noise.fractal_type = FastNoiseLite.FRACTAL_PING_PONG
+
 	for i in range(vertices.size()):
 		var vertex = vertices[i].normalized()
-		var radius = 1.0 + noise.get_noise_3dv(vertex) * multiplier
-		vertices[i] = vertex * radius
+		var m = clamp(mask.get_noise_3dv(vertex), 0.0, 1.0)  # 0 = smooth, 1 = mountainous
+		var height = smooth_noise.get_noise_3dv(vertex) * 0.1  # gentle base
+		var n = mountain_noise.get_noise_3dv(vertex) * m    # mountains only where mask is high
+		n = sign(n) * pow(abs(n), power_curve_exponent)
+		height += n
+		vertices[i] = vertex * (1.0 + height * multiplier)
 	return vertices
