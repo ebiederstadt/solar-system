@@ -7,6 +7,36 @@ extends MeshInstance3D
 		subdiv_levels = val
 		gen_mesh()
 
+@export_group("Noise Params")
+@export var frequency := 0.5:
+	set(val):
+		frequency = val
+		update_noise()
+
+@export var multiplier := 2.0:
+	set(val):
+		multiplier = val
+		update_noise()
+
+@export var octaves := 5:
+	set(val):
+		octaves = val
+		update_noise()
+
+@export var fractal_lacunarity := 2.0:
+	set(val):
+		fractal_lacunarity = val
+		update_noise()
+
+@export var fractal_gain := 0.5:
+	set(val):
+		fractal_gain = val
+		update_noise()
+
+var base_vertices: PackedVector3Array
+var base_indices: PackedInt32Array
+var base_normals: PackedVector3Array
+
 
 func _ready():
 	gen_mesh()
@@ -67,18 +97,21 @@ func gen_mesh():
 		9, 1, 8,
 	])
 	var subdivided = subdivide(vertices, indices, subdiv_levels)
-	vertices = subdivided["vertices"]
-	indices = subdivided["indices"]
+	base_vertices = subdivided["vertices"]
+	base_indices = subdivided["indices"]
+	base_normals = gen_normals(base_vertices)
+
+	vertices = modify_height(base_vertices)
 
 	var array_mesh = ArrayMesh.new()
 	var arrays = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_INDEX] = indices
-	arrays[Mesh.ARRAY_NORMAL] = gen_normals(vertices)
+	arrays[Mesh.ARRAY_INDEX] = base_indices
+	arrays[Mesh.ARRAY_NORMAL] = base_normals
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
-	var line_arrays = gen_outline(vertices, indices)
+	var line_arrays = gen_outline(vertices, base_indices)
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, line_arrays)
 
 	mesh = array_mesh
@@ -142,3 +175,32 @@ func subdivide(vertices: PackedVector3Array, indices: PackedInt32Array, subdivis
 		indices = out_indices
 
 	return {"vertices": final_vertices, "indices": final_indices}
+
+
+func update_noise():
+	var array_mesh = ArrayMesh.new()
+	var arrays = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = modify_height(base_vertices)
+	arrays[Mesh.ARRAY_INDEX] = base_indices
+	arrays[Mesh.ARRAY_NORMAL] = base_normals
+	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
+	var line_arrays = gen_outline(base_vertices, base_indices)
+	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, line_arrays)
+
+	mesh = array_mesh
+
+func modify_height(vertices: PackedVector3Array) -> PackedVector3Array:
+	var noise = FastNoiseLite.new()
+	noise.seed = randi()
+	noise.frequency = frequency
+	noise.fractal_octaves = octaves
+	noise.noise_type = FastNoiseLite.TYPE_PERLIN
+	noise.fractal_lacunarity = fractal_lacunarity
+	noise.fractal_gain
+	for i in range(vertices.size()):
+		var vertex = vertices[i].normalized()
+		var radius = 1.0 + noise.get_noise_3dv(vertex) * multiplier
+		vertices[i] = vertex * radius
+	return vertices
